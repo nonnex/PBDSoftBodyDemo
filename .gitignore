@@ -8,3 +8,6 @@
 /Plugins/PBDSoftBodyPlugin/Binaries
 /Plugins/PBDSoftBodyPlugin/Intermediate
 
+/*.vsconfig
+/*.sln
+/*.vsconfig
