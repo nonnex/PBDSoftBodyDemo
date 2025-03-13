@@ -76,7 +76,6 @@
 - **Milestone 2**: Full simulation with physics (Pending).
 - **Milestone 3**: Optimized and documented plugin (Pending).
 
---- 
 
 ## Tasks in Detail
 ### Task 1: Setup Plugin Structure
