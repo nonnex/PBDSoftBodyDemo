@@ -19,35 +19,72 @@
 - Status: Tasks 1 - 2.4 completed
 - Target: Binary UE 5.5.4 compatibility, testable with SKM_QUINN Mannequin in a new project.
 
-## Development Roadmap with Subtasks
-- [x] Task 1: Setup Plugin Structure
-  - [x] Test: Plugin loads in editor.
-- [ ] Task 2: Component and Blending Animation Suppport
-  - [x] Subtask 2.1: Define Component Structure
-    - [x] Test: Component attaches to blueprint.
-  - [x] Subtask 2.2: Add Simulation Data Structures
-    - [x] Test: Data arrays initialize correctly.
-  - [x] Subtask 2.3: Implement Basic Animation Blending
-    - [x] Test: Blending visually works in editor.
-  - [x] Subtask 2.4: Add Clustering
-    - [x] Test: Clusters form correctly.
-  - [ ] Subtask 2.5: Integrate with Subsystem
-    - [ ] Test: Registration and double buffering work.
-- [ ] Task 3: Implement Subsystem
-  - [ ] Test: Components simulate together.
-- [ ] Task 4: Implement Muscle Shader
-  - [ ] Test: Shader updates positions.
-- [ ] Task 5: Region-Based Control and Editor Preview
-  - [ ] Test: Region control and preview functional.
-- [ ] Task 6: Build and Test 
-  - [ ]Test: Meets performance and stability goals.
+## Tasks
 
-## Task 1: Setup Plugin Structure
+### Task 1: Setup Plugin Structure
+- [x] Create `PBDSoftBodyPlugin` with basic component (`UPBDSoftBodyComponent`).
+
+### Task 2: Core Simulation Logic
+- [x] 2.1: Vertex position retrieval (`GetVertexPositions`).
+- [x] 2.2: Cluster generation (`GenerateClusters`).
+- [x] 2.3: Blending logic (`UpdateBlendedPositions`).
+- [ ] 2.4: Apply positions to mesh.
+  - [ ] 2.4.1: Update vertex buffer with `SimulatedPositions`.
+  - [ ] 2.4.2: Test mesh deformation with `SKM_Quinn`.
+
+### Task 3: Animation Integration
+- [x] 3.1: Handle animated meshes with skinning (`ComputeSkinnedPositions`).
+- [x] 3.2: Add fallback to reference pose for no-animation case.
+- [ ] 3.3: Integrate with Animation Blueprint.
+  - [ ] 3.3.1: Link `UPBDSoftBodyComponent` to Animation Blueprint events.
+  - [ ] 3.3.2: Test with animated sequence (e.g., `ThirdPersonIdle`).
+
+### Task 4: Physics Simulation
+- [ ] 4.1: Implement PBD constraints.
+  - [ ] 4.1.1: Add stretch constraints between vertices.
+  - [ ] 4.1.2: Add bend constraints for cluster stability.
+- [ ] 4.2: Simulate velocities and positions.
+  - [ ] 4.2.1: Update `Velocities` with gravity and constraints.
+  - [ ] 4.2.2: Integrate positions using PBD solver.
+- [ ] 4.3: Test physics simulation.
+  - [ ] 4.3.1: Verify deformation with simple drop test.
+
+### Task 5: Optimization and Debugging
+- [x] 5.1: Add logging (`bEnableDebugLogging`, `bVerboseDebugLogging`).
+- [ ] 5.2: Optimize cluster performance.
+  - [ ] 5.2.1: Profile clustering algorithm for large meshes.
+  - [ ] 5.2.2: Reduce memory usage in `SimulatedPositions`.
+- [ ] 5.3: Add debug visualization.
+  - [ ] 5.3.1: Draw cluster centroids in editor.
+
+### Task 6: Testing and Documentation
+- [ ] 6.1: Unit testing.
+  - [ ] 6.1.1: Test vertex position retrieval with static mesh.
+  - [ ] 6.1.2: Test clustering with varying `NumClusters`.
+- [ ] 6.2: Integration testing.
+  - [ ] 6.2.1: Verify simulation with animated and static meshes.
+- [ ] 6.3: Documentation.
+  - [ ] 6.3.1: Document `UPBDSoftBodyComponent` properties and methods.
+  - [ ] 6.3.2: Create usage guide for plugin.
+
+## Current State
+- Task 2.3 completed with logging and animation fallback (tested with `SKM_Quinn`, 45993 vertices).
+- Next: Task 2.4 (apply `SimulatedPositions` to mesh).
+
+## Milestones
+- **Milestone 1**: Basic clustering and blending (Done).
+- **Milestone 2**: Full simulation with physics (Pending).
+- **Milestone 3**: Optimized and documented plugin (Pending).
+
+--- 
+
+## Tasks in Detail
+### Task 1: Setup Plugin Structure
 Objective: Establish a robust plugin foundation optimized for Unreal Engine 5.5.3.
 - Details: Configure .uplugin and Build.cs, set up directories (/Source/, /Resources/, /Content/), and ensure basic compilation.
 - Test: Verify the plugin loads in the UE Editor with no errors.
 
-## Task 2: Implement Core Component with Blending and Optimizations
+### Task 2: Implement Core Component with Blending and Optimizations
 Objective: Build UPBDSoftBodyComponent incrementally with high performance, stability, and editor-friendly features.
 
 ### Subtask 2.1: Define Component Structure and Basic Properties
