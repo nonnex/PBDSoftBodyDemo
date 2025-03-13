@@ -20,26 +20,26 @@
 - Target: Binary UE 5.5.4 compatibility, testable with SKM_QUINN Mannequin in a new project.
 
 ## Development Roadmap with Subtasks
-1. ### [ ] Task 1: Setup Plugin Structure
+- ### [x] Task 1: Setup Plugin Structure
    - [x] Test: Plugin loads in editor.
-2. ### [ ] Task 2: Component and Blending Animation Suppport
+- ### [ ] Task 2: Component and Blending Animation Suppport
    - [x] Subtask 2.1: Define Component Structure
      - [x] Test: Component attaches to blueprint.
    - [x] Subtask 2.2: Add Simulation Data Structures
      - [x] Test: Data arrays initialize correctly.
    - [x] Subtask 2.3: Implement Basic Animation Blending
-     - [ ] Test: Blending visually works in editor.
-   - [ ] Subtask 2.4: Add Clustering
-     - [ ] Test: Clusters form correctly.
+     - [x] Test: Blending visually works in editor.
+   - [x] Subtask 2.4: Add Clustering
+     - [x] Test: Clusters form correctly.
    - [ ] Subtask 2.5: Integrate with Subsystem
      - [ ] Test: Registration and double buffering work.
-3. ### [ ] Task 3: Implement Subsystem
+- ### [ ] Task 3: Implement Subsystem
    - [ ] Test: Components simulate together.
-4. ### [ ] Task 4: Implement Muscle Shader
+- ### [ ] Task 4: Implement Muscle Shader
    - [ ] Test: Shader updates positions.
-5. ### [ ] Task 5: Region-Based Control and Editor Preview
+- ### [ ] Task 5: Region-Based Control and Editor Preview
    - [ ] Test: Region control and preview functional.
-6. ### [ ] Task 6: Build and Test 
+- ### [ ] Task 6: Build and Test 
    - [ ]Test: Meets performance and stability goals.
 
 ## Task 1: Setup Plugin Structure
@@ -52,7 +52,6 @@ Objective: Build UPBDSoftBodyComponent incrementally with high performance, stab
 
 ### Subtask 2.1: Define Component Structure and Basic Properties
 - Objective: Set up the class skeleton with essential properties and minimal functionality.
-
 - Details:
   - Create PBDSoftBodyComponent.h:
     ```cpp
