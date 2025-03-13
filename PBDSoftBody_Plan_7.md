@@ -1,4 +1,28 @@
-Updated Plan for PBDSoftBodyPlugin Development (with Task 2 Subtasks)
+==================================
+PBDSoftBodyPlugin Development Plan
+==================================
+
+Project: SoftBodyDemo
+- Base: Unreal Engine 5.5.4 Third Person Template (C++), using the shipped template starter Content like Mannequins Material etc.
+- Goal: Simulate skin/muscle soft body dynamics on a 15,000-vertex skeletal mesh for 5-10 actors at 60 FPS (<16.6 ms), targeting 6-11 ms total.
+
+Plugin: PBDSoftBodyPlugin
+- Component: UPBDSoftBodyComponent (inherits USkeletalMeshComponent), addable via Unreal Editor.
+- Manager: Self Registering
+- Features:
+  - Skin Shader: Substrate material, ~0.5-1 ms per actor with LODs (15,000 → 7,500 → 3,000 verts).
+  - Muscle Shader: MuscleDeform.usf with DQS (~2-3 ms), Implicit (~2-4 ms), XPBD (~2-4 ms), thread group 64, SM5.0.
+  - Modes: DQS (0), Implicit (1), XPBD (2).
+  - Animation Blending: SoftBodyBlendWeight (0.0-1.0) blends animated pose with simulation.
+  - Optimizations: Constraint clustering, async buffers, velocity smoothing, dynamic stiffness.
+  - Editor Enhancements:
+    - Region-Based Control: Vertex colors define per-region blend weight, stiffness, and mode.
+    - Editor Preview: Real-time simulation in Editor viewport.
+- Status: Tasks 1 - 2.4 completed
+- Target: Binary UE 5.5.4 compatibility, testable with SKM_QUINN Mannequin in a new project.
+
+---
+
 Task 1: Setup Plugin Structure
 Objective: Establish a robust plugin foundation optimized for Unreal Engine 5.5.3.
     • Details: Configure .uplugin and Build.cs, set up directories (/Source/, /Resources/, /Content/), and ensure basic compilation.
