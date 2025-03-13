@@ -1,0 +1,1 @@
+Copy the "Content" shipped with UE Template "Third Person (C++)"
