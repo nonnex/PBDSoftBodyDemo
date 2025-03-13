@@ -13,6 +13,19 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Soft Body")
     bool bAutoRegister = true;
 
+    // Simulation data
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Soft Body Simulation")
+    TArray<FVector> Velocities;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Soft Body Simulation")
+    TArray<FVector> SimulatedPositions;
+
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+    // Initialize simulation arrays based on mesh
+    void InitializeSimulationData();
+
+    // Get current animated vertex positions
+    TArray<FVector> GetVertexPositions() const;
 };
