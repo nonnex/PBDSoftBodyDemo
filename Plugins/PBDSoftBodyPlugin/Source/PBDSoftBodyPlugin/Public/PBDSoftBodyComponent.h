@@ -16,7 +16,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Soft Body Debugging")
     bool bEnableDebugLogging = true;
 
-    // Simulation data
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Soft Body Simulation")
     TArray<FVector> Velocities;
 
@@ -26,6 +25,7 @@ public:
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-    void InitializeSimulationData();
+    bool InitializeSimulationData();
     TArray<FVector> GetVertexPositions() const;
+    void UpdateBlendedPositions();
 };
