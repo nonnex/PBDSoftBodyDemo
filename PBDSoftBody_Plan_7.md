@@ -20,27 +20,27 @@
 - Target: Binary UE 5.5.4 compatibility, testable with SKM_QUINN Mannequin in a new project.
 
 ## Development Roadmap with Subtasks
-- ### [x] Task 1: Setup Plugin Structure
-   - [x] Test: Plugin loads in editor.
-- ### [ ] Task 2: Component and Blending Animation Suppport
-   - [x] Subtask 2.1: Define Component Structure
-     - [x] Test: Component attaches to blueprint.
-   - [x] Subtask 2.2: Add Simulation Data Structures
-     - [x] Test: Data arrays initialize correctly.
-   - [x] Subtask 2.3: Implement Basic Animation Blending
-     - [x] Test: Blending visually works in editor.
-   - [x] Subtask 2.4: Add Clustering
-     - [x] Test: Clusters form correctly.
-   - [ ] Subtask 2.5: Integrate with Subsystem
-     - [ ] Test: Registration and double buffering work.
-- ### [ ] Task 3: Implement Subsystem
-   - [ ] Test: Components simulate together.
-- ### [ ] Task 4: Implement Muscle Shader
-   - [ ] Test: Shader updates positions.
-- ### [ ] Task 5: Region-Based Control and Editor Preview
-   - [ ] Test: Region control and preview functional.
-- ### [ ] Task 6: Build and Test 
-   - [ ]Test: Meets performance and stability goals.
+- [x] Task 1: Setup Plugin Structure
+  - [x] Test: Plugin loads in editor.
+- [ ] Task 2: Component and Blending Animation Suppport
+  - [x] Subtask 2.1: Define Component Structure
+    - [x] Test: Component attaches to blueprint.
+  - [x] Subtask 2.2: Add Simulation Data Structures
+    - [x] Test: Data arrays initialize correctly.
+  - [x] Subtask 2.3: Implement Basic Animation Blending
+    - [x] Test: Blending visually works in editor.
+  - [x] Subtask 2.4: Add Clustering
+    - [x] Test: Clusters form correctly.
+  - [ ] Subtask 2.5: Integrate with Subsystem
+    - [ ] Test: Registration and double buffering work.
+- [ ] Task 3: Implement Subsystem
+  - [ ] Test: Components simulate together.
+- [ ] Task 4: Implement Muscle Shader
+  - [ ] Test: Shader updates positions.
+- [ ] Task 5: Region-Based Control and Editor Preview
+  - [ ] Test: Region control and preview functional.
+- [ ] Task 6: Build and Test 
+  - [ ]Test: Meets performance and stability goals.
 
 ## Task 1: Setup Plugin Structure
 Objective: Establish a robust plugin foundation optimized for Unreal Engine 5.5.3.
