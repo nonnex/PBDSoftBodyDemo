@@ -237,4 +237,4 @@ Development Roadmap with Subtasks
     6. Task 6: Build and Test (3-5 days)
         ◦ Test: Meets performance and stability goals.
 
-This breakdown ensures each step builds on the last, with clear test points to validate progress. Subtask 2.5 depends slightly on Task 3, but you can mock the subsystem with a minimal version (e.g., empty RegisterComponent) to test earlier. Let me know if you’d like to adjust the granularity or focus further on any subtask! How does this structure feel for your workflow?
+
