@@ -1,8 +1,8 @@
 # PBDSoftBodyPlugin Development Plan
 
-## Overview
-- **Goal**: Implement a PBD-based soft body simulation in UE 5.5.4 as a plugin.
-- **Current Version**: Unreal Engine 5.5.4 (binary).
+## Project Overview
+The PBDSoftBodyDemo project aims to implement an Unreal PlugIn that provides an advanced soft body simulation using Position-Based Dynamics (PBD) within Unreal Engine 5.5. 
+This system will support real-time deformable objects with high vertex counts, suitable for applications like character muscle simulation, cloth dynamics, or destructible environments.
 
 ## Unreal Project: SoftBodyDemo (.uproject)
 - **Purpose**: Demonstrates the PBDSoftBodyPlugin features and a Position-Based Dynamics (PBD) soft body simulation integrated into Unreal Engine. This .uproject uses the standard "Third Person Template as a C++ project" and the "Starter Content".
@@ -12,7 +12,6 @@ It embeds the PBDSoftBodyPlugin (which is the focus of this development) to test
 - **Repository**: [https://github.com/nonnex/PBDSoftBodyDemo.git](https://github.com/nonnex/PBDSoftBodyDemo.git)
 - **Current Milestone**: Basic clustering and blending completed (Milestone 1).
 - Base: Unreal Engine 5.5.4 Third Person Template (C++), using the shipped template starter Content like Mannequins Material etc.
-- Goal: Simulate realistic but performant skin/muscle soft body dynamics on high vertex skeletal meshes for 5-10 actors at 60 FPS (<16.6 ms), targeting 6-11 ms total.
 
 ## Unreal Plugin: PBDSoftBodyPlugin (.uplugin)
 - **Purpose**: Provide a reusable PBD soft body simulation component for Unreal Engine projects.
@@ -33,6 +32,29 @@ It embeds the PBDSoftBodyPlugin (which is the focus of this development) to test
     - Editor Preview: Real-time simulation in Editor viewport.
 - Status: Tasks 1 - 2.4 completed
 - Target: Binary UE 5.5.4 compatibility, testable with SKM_QUINN Mannequin in a new project.
+
+### Goals
+- Achieve real-time performance (60 FPS) for 5-10 soft body actors, each with 45k+ vertices (225k–450k total).
+- Implement a custom GPU-accelerated solution using compute shaders (`MuscleSim.usf`) and vertex shaders (`MuscleDeform.usf`) targeting Shader Model 5.0 (SM5.0).
+- Integrate Dual Quaternion Skinning (DQS), Extended PBD (XPBD), Implicit deformations, and Substrate materials for a muscle simulation system.
+- Maintain flexibility for future enhancements (e.g., animation, morphs, collision handling, LOD, etc).
+
+### Scope
+- First and foremost focus on Performace with as less as possible of visual Quality loss.
+- Focus on GPU-based simulation to handle high vertex counts efficiently.
+- Target mid-range SM5.0 hardware (e.g., GTX 970, ~1.5 TFLOPS). // TODO: Alter to RTX class Hardware, The scope and makes no sense for lesser GPU's
+- Leverage Unreal Engine 5.5’s rendering and physics capabilities.
+
+
+### Research Science / Sources
+- Study PBD fundamentals (e.g., Müller 2007 paper on Position-Based Dynamics).
+- Review XPBD enhancements (Macklin et al., 2016) for improved stability and performance.
+- Investigate Unreal Engine 5.5 GPU capabilities (compute shaders, Niagara, vertex shaders).
+- Analyze existing soft body implementations in Unreal (e.g., Chaos Cloth, Physics Asset constraints).
+- **Subtask 1.1: Research DQS and Implicit Methods**  
+  - Investigate Dual Quaternion Skinning for skeletal deformation and Implicit surfaces for muscle bulging (integrated from research expansion suggestion).  
+- **Subtask 1.2: Compare GPU Options**  
+  - Evaluate Niagara vs. custom shaders for PBD throughput, document pros/cons (from suggestion to consider Niagara’s performance edge).
 
 ## Tasks
 
