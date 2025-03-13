@@ -1,10 +1,25 @@
 # PBDSoftBodyPlugin Development Plan
 
-## Project: SoftBodyDemo
-- Base: Unreal Engine 5.5.4 Third Person Template (C++), using the shipped template starter Content like Mannequins Material etc.
-- Goal: Simulate skin/muscle soft body dynamics on a 15,000-vertex skeletal mesh for 5-10 actors at 60 FPS (<16.6 ms), targeting 6-11 ms total.
+## Overview
+- **Goal**: Implement a PBD-based soft body simulation in UE 5.5.4 as a plugin.
+- **Current Version**: Unreal Engine 5.5.4 (binary).
 
-## Plugin: PBDSoftBodyPlugin
+## Unreal Project: SoftBodyDemo (.uproject)
+- **Purpose**: Demonstrates the PBDSoftBodyPlugin features and a Position-Based Dynamics (PBD) soft body simulation integrated into Unreal Engine. This .uproject uses the standard "Third Person Template as a C++ project" and the "Starter Content".
+It embeds the PBDSoftBodyPlugin (which is the focus of this development) to test the plugin's capabilities in a sample environment. The .uproject serves merely as a "playground" for the plugin and can be expanded as needed.
+- **Technologies**: Unreal Engine 5.5.4 (binary installation), C++, Git for version control.
+- **Knowledge**: Skeletal mesh manipulation, vertex position retrieval, clustering algorithms, animation skinning, physics simulation with PBD constraints.
+- **Repository**: [https://github.com/nonnex/PBDSoftBodyDemo.git](https://github.com/nonnex/PBDSoftBodyDemo.git)
+- **Current Milestone**: Basic clustering and blending completed (Milestone 1).
+- Base: Unreal Engine 5.5.4 Third Person Template (C++), using the shipped template starter Content like Mannequins Material etc.
+- Goal: Simulate realistic but performant skin/muscle soft body dynamics on high vertex skeletal meshes for 5-10 actors at 60 FPS (<16.6 ms), targeting 6-11 ms total.
+
+## Unreal Plugin: PBDSoftBodyPlugin (.uplugin)
+- **Purpose**: Provide a reusable PBD soft body simulation component for Unreal Engine projects.
+- **Core Component**: `UPBDSoftBodyComponent` (inherits `USkeletalMeshComponent`).
+- **Technologies**: Unreal Engine 5.5.4 C++ API (e.g., `FSkeletalMeshLODRenderData`, `FPositionVertexBuffer`, `ComputeSkinnedPositions`), Blueprint integration.
+- **Knowledge**: Dynamic vertex position updates, cluster-based simulation, animation fallback, debug logging, planned physics with stretch/bend/collision constraints.
+- **Features**: Vertex clustering, blending with animation, logging (`bEnableDebugLogging`, `bVerboseDebugLogging`), future physics and optimization.
 - Component: UPBDSoftBodyComponent (inherits USkeletalMeshComponent), addable via Unreal Editor.
 - Manager: Self Registering
 - Features:
@@ -23,6 +38,7 @@
 
 ### Task 1: Setup Plugin Structure
 - [x] Create `PBDSoftBodyPlugin` with basic component (`UPBDSoftBodyComponent`).
+- [ ] 1.1: Add config file for default settings (e.g., `PBDSoftBodyConfig.ini`).
 
 ### Task 2: Core Simulation Logic
 - [x] 2.1: Vertex position retrieval (`GetVertexPositions`).
@@ -31,23 +47,28 @@
 - [ ] 2.4: Apply positions to mesh.
   - [ ] 2.4.1: Update vertex buffer with `SimulatedPositions`.
   - [ ] 2.4.2: Test mesh deformation with `SKM_Quinn`.
+- [ ] 2.5: Add dynamic cluster sizing based on mesh vertex count.
+- [ ] 2.6: Implement vertex grouping by material.
 
 ### Task 3: Animation Integration
 - [x] 3.1: Handle animated meshes with skinning (`ComputeSkinnedPositions`).
 - [x] 3.2: Add fallback to reference pose for no-animation case.
 - [ ] 3.3: Integrate with Animation Blueprint.
-  - [ ] 3.3.1: Link `UPBDSoftBodyComponent` to Animation Blueprint events.
+  - [ ] 3.3.1: Link `UPBDSoftBodyComponent` to Animation Blueprint events (e.g., override `SoftBodyBlendWeight` per cluster).
   - [ ] 3.3.2: Test with animated sequence (e.g., `ThirdPersonIdle`).
 
 ### Task 4: Physics Simulation
 - [ ] 4.1: Implement PBD constraints.
   - [ ] 4.1.1: Add stretch constraints between vertices.
   - [ ] 4.1.2: Add bend constraints for cluster stability.
+  - [ ] 4.1.3: Implement collision constraints with environment.
+  - [ ] 4.1.4: Implement self-collision constraints.
+  - [ ] 4.1.5: Implement volume preservation constraints for organic shapes.
 - [ ] 4.2: Simulate velocities and positions.
   - [ ] 4.2.1: Update `Velocities` with gravity and constraints.
   - [ ] 4.2.2: Integrate positions using PBD solver.
 - [ ] 4.3: Test physics simulation.
-  - [ ] 4.3.1: Verify deformation with simple drop test.
+  - [ ] 4.3.1: Verify deformation with simple drop test (include collision and self-collision).
 
 ### Task 5: Optimization and Debugging
 - [x] 5.1: Add logging (`bEnableDebugLogging`, `bVerboseDebugLogging`).
@@ -55,17 +76,18 @@
   - [ ] 5.2.1: Profile clustering algorithm for large meshes.
   - [ ] 5.2.2: Reduce memory usage in `SimulatedPositions`.
 - [ ] 5.3: Add debug visualization.
-  - [ ] 5.3.1: Draw cluster centroids in editor.
+  - [ ] 5.3.1: Draw cluster centroids and vertex positions in editor (toggle with `bDebugMode`).
 
 ### Task 6: Testing and Documentation
 - [ ] 6.1: Unit testing.
-  - [ ] 6.1.1: Test vertex position retrieval with static mesh.
+  - [ ] 6.1.1: Test vertex position retrieval with static mesh and zero vertices.
   - [ ] 6.1.2: Test clustering with varying `NumClusters`.
 - [ ] 6.2: Integration testing.
   - [ ] 6.2.1: Verify simulation with animated and static meshes.
 - [ ] 6.3: Documentation.
   - [ ] 6.3.1: Document `UPBDSoftBodyComponent` properties and methods.
-  - [ ] 6.3.2: Create usage guide for plugin.
+  - [ ] 6.3.2: Create usage guide with Blueprint example (e.g., `SKM_Quinn` setup).
+  - [ ] 6.3.3: Create video tutorial demonstrating plugin setup and simulation.
 
 ## Current State
 - Task 2.3 completed with logging and animation fallback (tested with `SKM_Quinn`, 45993 vertices).
@@ -73,239 +95,25 @@
 
 ## Milestones
 - **Milestone 1**: Basic clustering and blending (Done).
-- **Milestone 2**: Full simulation with physics (Pending).
+- **Milestone 2**: Full simulation with physics and collision (Pending).
 - **Milestone 3**: Optimized and documented plugin (Pending).
 
-
 ## Tasks in Detail
-### Task 1: Setup Plugin Structure
-Objective: Establish a robust plugin foundation optimized for Unreal Engine 5.5.3.
-- Details: Configure .uplugin and Build.cs, set up directories (/Source/, /Resources/, /Content/), and ensure basic compilation.
-- Test: Verify the plugin loads in the UE Editor with no errors.
-
-### Task 2: Implement Core Component with Blending and Optimizations
-Objective: Build UPBDSoftBodyComponent incrementally with high performance, stability, and editor-friendly features.
-
-### Subtask 2.1: Define Component Structure and Basic Properties
-- Objective: Set up the class skeleton with essential properties and minimal functionality.
-- Details:
-  - Create PBDSoftBodyComponent.h:
-    ```cpp
-    #pragma once
-    #include "CoreMinimal.h"
-    #include "Components/SkeletalMeshComponent.h"
-    #include "PBDSoftBodyComponent.generated.h"
-          
-    UCLASS(ClassGroup = (Simulation), meta = (BlueprintSpawnableComponent))
-    class PBDSOFTBODYPLUGIN_API UPBDSoftBodyComponent : public USkeletalMeshComponent {
-        GENERATED_BODY()
-    public:
-        UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Soft Body", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-        float SoftBodyBlendWeight = 0.5f;
-          
-        UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Soft Body")
-        bool bAutoRegister = true;
-          
-        virtual void BeginPlay() override;
-        virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-    };
-    ```
-  - Create PBDSoftBodyComponent.cpp:
-    ```cpp
-    #include "PBDSoftBodyComponent.h"
-          
-    void UPBDSoftBodyComponent::BeginPlay() {
-        Super::BeginPlay();
-    }
-          
-    void UPBDSoftBodyComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
-        Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    }
-    ```
-- Test: Add the component to a blueprint (BP_SoftBodyActor) with SK_Mannequin, compile, and ensure it appears in the editor with no crashes.
-
-### Subtask 2.2: Add Simulation Data Structures
-- Objective: Introduce data arrays for simulation (positions, velocities, etc.) and ensure memory efficiency.
-- Details:
-  - Update PBDSoftBodyComponent.h:
-    ```cpp
-    UPROPERTY(VisibleAnywhere, Category = "Soft Body")
-    TArray<FVector> Velocities;
-          
-    UPROPERTY(VisibleAnywhere, Category = "Soft Body")
-    TArray<FVector> SimulatedPositions;
-          
-    void InitializeSimulationData();
-    TArray<FVector> GetVertexPositions() const;
-    ```
-  - Update PBDSoftBodyComponent.cpp:
-    ```cpp
-    void UPBDSoftBodyComponent::InitializeSimulationData() {
-        if (SkeletalMesh) {
-            int32 VertexCount = SkeletalMesh->GetVertexCountImported();
-            Velocities.Reserve(VertexCount);
-            SimulatedPositions.Reserve(VertexCount);
-            Velocities.SetNum(VertexCount, false);
-            SimulatedPositions.SetNum(VertexCount, false);
-            for (int32 i = 0; i < VertexCount; i++) {
-                Velocities[i] = FVector::ZeroVector;
-                SimulatedPositions[i] = FVector::ZeroVector;
-            }
-        }
-    }
-          
-    TArray<FVector> UPBDSoftBodyComponent::GetVertexPositions() const {
-        TArray<FVector> Positions;
-        if (SkeletalMesh) {
-            Positions = SkeletalMesh->GetSkinnedVertexPositions(/*LODIndex*/ 0);
-        }
-        return Positions;
-    }
-          
-    void UPBDSoftBodyComponent::BeginPlay() {
-        Super::BeginPlay();
-        InitializeSimulationData();
-    }
-    ```
-- Test: Compile, attach to BP_SoftBodyActor, and use a debug log (UE_LOG) to verify Velocities and SimulatedPositions match the mesh’s vertex count.
-
-### Subtask 2.3: Implement Basic Animation Blending
-- Objective: Blend skeletal animation with simulated positions using SoftBodyBlendWeight.
-- Details:
-  - Update PBDSoftBodyComponent.h:
-    ```cpp
-    void UpdateBlendedPositions();
-    ```
-  - Update PBDSoftBodyComponent.cpp:
-    ```cpp
-    void UPBDSoftBodyComponent::UpdateBlendedPositions() {
-        TArray<FVector> AnimatedPositions = GetVertexPositions();
-        if (AnimatedPositions.Num() != SimulatedPositions.Num()) return;
-          
-        for (int32 i = 0; i < AnimatedPositions.Num(); i++) {
-            SimulatedPositions[i] = FMath::Lerp(AnimatedPositions[i], SimulatedPositions[i], SoftBodyBlendWeight);
-        }
-    }
-          
-    void UPBDSoftBodyComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
-        Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-        UpdateBlendedPositions();
-    }
-    ```
-- Test: Compile, run in-editor, adjust SoftBodyBlendWeight in BP_SoftBodyActor, and visually confirm blending affects the mesh (even if simulation isn’t active yet).
-
-### Subtask 2.4: Add Clustering for Optimization
-- Objective: Implement constraint clustering to optimize simulation performance.
-- Details:
-  - Update PBDSoftBodyComponent.h:
-    ```cpp
-    USTRUCT()
-    struct FCluster {
-        GENERATED_BODY()
-        int32 CentroidIdx;
-        TArray<int32> VertexIndices;
-        float Stiffness = 1.0f;
-    };
-          
-    UPROPERTY(VisibleAnywhere, Category = "Soft Body")
-    TArray<FCluster> Clusters;
-          
-    void ComputeClusters(int32 ClusterCount = 2000);
-    ```
-  - Update PBDSoftBodyComponent.cpp:
-    ```cpp
-    void UPBDSoftBodyComponent::ComputeClusters(int32 ClusterCount) {
-        if (!SkeletalMesh) return;
-        TArray<FVector> Positions = GetVertexPositions();
-        if (Positions.Num() == 0) return;
-          
-        Clusters.Reset();
-        Clusters.Reserve(ClusterCount);
-        int32 VerticesPerCluster = Positions.Num() / ClusterCount;
-          
-        for (int32 i = 0; i < ClusterCount; i++) {
-            FCluster Cluster;
-            Cluster.CentroidIdx = i * VerticesPerCluster;
-            for (int32 j = 0; j < VerticesPerCluster && (i * VerticesPerCluster + j) < Positions.Num(); j++) {
-                Cluster.VertexIndices.Add(i * VerticesPerCluster + j);
-            }
-            Clusters.Add(Cluster);
-        }
-    }
-          
-    void UPBDSoftBodyComponent::BeginPlay() {
-        Super::BeginPlay();
-        InitializeSimulationData();
-        ComputeClusters(2000);
-    }
-    ```
-- Test: Compile, log cluster data (e.g., Clusters.Num()), and ensure clusters cover all vertices without overlap or crashes.
-
-### Subtask 2.5: Integrate with Subsystem and Finalize Optimizations
-- Objective: Connect the component to the subsystem and add performance optimizations.
-- Details:
-  - Update PBDSoftBodyComponent.h:
-    ```cpp
-        UPROPERTY(VisibleAnywhere, Category = "Soft Body")
-        bool bUseDoubleBuffering = true;
-          
-        TArray<FVector> PreviousPositions;
-    ```
-  - Update PBDSoftBodyComponent.cpp:
-    ```cpp
-    #include "PBDSoftBodySubsystem.h"
-          
-    void UPBDSoftBodyComponent::InitializeSimulationData() {
-        if (SkeletalMesh) {
-            int32 VertexCount = SkeletalMesh->GetVertexCountImported();
-            Velocities.SetNum(VertexCount, false);
-            SimulatedPositions.SetNum(VertexCount, false);
-            if (bUseDoubleBuffering) {
-                PreviousPositions.SetNum(VertexCount, false);
-            }
-        }
-    }
-          
-    void UPBDSoftBodyComponent::BeginPlay() {
-        Super::BeginPlay();
-        InitializeSimulationData();
-        ComputeClusters(2000);
-        if (bAutoRegister) {
-            if (UPBDSoftBodySubsystem* Subsystem = GetWorld()->GetGameInstance()->GetSubsystem<UPBDSoftBodySubsystem>()) {
-                Subsystem->RegisterComponent(this);
-            }
-        }
-    }
-          
-    void UPBDSoftBodyComponent::EndPlay(const EEndPlayReason::Type EndPlayReason) {
-        if (bAutoRegister) {
-            if (UPBDSoftBodySubsystem* Subsystem = GetWorld()->GetGameInstance()->GetSubsystem<UPBDSoftBodySubsystem>()) {
-                Subsystem->UnregisterComponent(this);
-            }
-        }
-        Super::EndPlay(EndPlayReason);
-    }
-    ```
-- Test: Compile with Task 3 (Subsystem) partially implemented, verify registration/unregistration works, and check double buffering doesn’t crash (even if simulation isn’t fully active).
-
-### Task 3: Implement Subsystem
-- Objective: Develop UPBDSoftBodySubsystem to manage components efficiently.
-- Details: Use UGameInstanceSubsystem, implement RegisterComponent, UnregisterComponent, and SimulateSoftBodies.
-- Test: Ensure components register and simulation runs without errors (placeholder simulation logic initially).
-
-### Task 4: Implement Muscle Shader with Blending and Optimizations
-- Objective: Build MuscleDeform.usf for GPU-accelerated simulation.
-- Details: Use SM5.0, define buffers, implement DQS/Implicit/XPBD modes.
-- Test: Compile shader, hook it to the component, and verify basic position updates.
-
-### Task 5: Region-Based Control and Editor Preview
-- Objective: Add region control via vertex colors and editor preview.
-- Details: Extend component with bUseRegionControl and bEnableEditorPreview.
-- Test: Paint vertex colors on SK_Mannequin, confirm region effects, and check editor simulation.
-
-### Task 6: Build and Test with UE 5.5.3 Binary
-- Objective: Validate the plugin with Unreal Engine 5.5.3 binary.
-- Details: Test with BP_SoftBodyActor, profile performance (6-11 ms target).
-- Test: Ensure stability and compatibility with no engine source modifications.
-
-
+- **Task 1: Setup Plugin Structure**
+  - *Note*: Basic setup is solid; config file added as 1.1 for flexibility.
+  - *Details*: Use `GConfig` to load defaults (e.g., `SoftBodyBlendWeight`, `NumClusters`) from `Config/PBDSoftBodyConfig.ini`.
+- **Task 2: Core Simulation Logic**
+  - *Note*: Clustering works; dynamic `NumClusters` added as 2.5 for scalability; vertex grouping by material added as 2.6 for realism.
+  - *Details*: Dynamic clusters via `NumClusters = VertexCount / 1000` (clamped); material grouping uses `FSkeletalMeshLODRenderData::RenderSections`.
+- **Task 3: Animation Integration**
+  - *Note*: Fallback is great; Animation Blueprint weight override included in 3.3.1, now per cluster for precision.
+  - *Details*: Add `ClusterBlendWeight` to `FSoftBodyCluster`; expose via `UFUNCTION(BlueprintCallable) void SetClusterBlendWeight(int32 ClusterIndex, float Weight)`.
+- **Task 4: Physics Simulation**
+  - *Note*: Stretch and bend are key; collision added as 4.1.3, self-collision as 4.1.4, volume preservation as 4.1.5 for enhanced realism.
+  - *Details*: Stretch/bend use PBD distance constraints; collision via `FCollisionQueryParams`; self-collision with spatial hash; volume preservation maintains tetrahedron volumes.
+- **Task 5: Optimization and Debugging**
+  - *Note*: Logging is good; `bDebugMode` toggle in 5.3.1 now includes vertex positions for better debugging.
+  - *Details*: Use `DrawDebugPoint` for centroids and vertices when `bDebugMode` is true; profile with UE’s `FScopedDurationTimer`.
+- **Task 6: Testing and Documentation**
+  - *Note*: Edge case (zero vertices) in 6.1.1; example docs in 6.3.2; video tutorial added as 6.3.3 for accessibility.
+  - *Details*: Test zero vertices with empty `USkeletalMesh`; docs include Blueprint nodes; video covers setup, debug, and `SKM_Quinn` test.
