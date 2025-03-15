@@ -1,10 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "SoftBodyCluster.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "PBDSoftBodyComponent.generated.h"
 
+// Forward declarations to avoid circular dependencies
 class UClusterManager;
 class UVertexBufferUpdater;
 class UAnimationBlender;
@@ -16,6 +17,7 @@ class PBDSOFTBODYPLUGIN_API UPBDSoftBodyComponent : public USkeletalMeshComponen
 
 public:
     UPBDSoftBodyComponent();
+    virtual ~UPBDSoftBodyComponent() override;
 
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -48,17 +50,21 @@ protected:
     bool InitializeSimulationData();
 
 private:
-    UPROPERTY(Transient)
+    UPROPERTY(Instanced, Transient)
     UClusterManager* ClusterManager;
 
-    UPROPERTY(Transient)
+    UPROPERTY(Instanced, Transient)
     UVertexBufferUpdater* VertexBufferUpdater;
 
-    UPROPERTY(Transient)
+    UPROPERTY(Instanced, Transient)
     UAnimationBlender* AnimationBlender;
 
     bool bHasActiveAnimation;
     mutable bool bHasLoggedVertexCount;
     bool bHasLoggedBlending;
     bool bHasLoggedBlendingVerbose;
+    bool bHasLoggedInvalidObjects; // New flag to throttle logging
+
+    friend class UAnimationBlender;
+    friend class UVertexBufferUpdater;
 };

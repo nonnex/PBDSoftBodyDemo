@@ -6,7 +6,7 @@ public class PBDSoftBodyPlugin : ModuleRules
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Projects" }); // Added "Projects"
         PrivateDependencyModuleNames.AddRange(new string[] { "RenderCore", "RHI" });
 
         PrivateIncludePaths.AddRange(new string[]
@@ -17,7 +17,7 @@ public class PBDSoftBodyPlugin : ModuleRules
             "PBDSoftBodyPlugin/Private/Animation"
         });
 
-        PublicIncludePaths.Add("PBDSoftBodyPlugin/Public");
+        PublicIncludePaths.Add(System.IO.Path.Combine(ModuleDirectory, "Public"));
 
         PrivateIncludePathModuleNames.AddRange(new string[] { });
         PublicIncludePathModuleNames.AddRange(new string[] { });

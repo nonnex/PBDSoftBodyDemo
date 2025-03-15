@@ -72,6 +72,7 @@ void UVertexBufferUpdater::ApplyPositions(UPBDSoftBodyComponent* Component)
                 if (Component->bEnableDebugLogging && !Component->bHasLoggedBlending && Component->GetSkeletalMeshAsset()->GetName().Contains(TEXT("SKM_Quinn")))
                 {
                     UE_LOG(LogTemp, Log, TEXT("VertexBufferUpdater: Successfully applied %d simulated positions to SKM_Quinn."), Component->SimulatedPositions.Num());
+                    Component->bHasLoggedBlending = true;
                 }
             }
             else

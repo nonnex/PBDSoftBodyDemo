@@ -1,11 +1,12 @@
-#include "PBDSoftBodyPlugin/Private/Animation/AnimationBlender.h"
+#include "AnimationBlender.h"
+#include "PBDSoftBodyComponent.h"
 #include "Rendering/SkeletalMeshRenderData.h"
 #include "Rendering/SkinWeightVertexBuffer.h"
 #include "Animation/Skeleton.h"
 #include "Animation/AnimInstance.h"
 #include "SoftBodyCluster.h"
 
-TArray<FVector> UAnimationBlender::GetVertexPositions(const UPBDSoftBodyComponent* Component) const
+TArray<FVector> UAnimationBlender::GetVertexPositions(UPBDSoftBodyComponent* Component) const
 {
     TArray<FVector> Positions;
     if (!Component)
@@ -111,7 +112,7 @@ TArray<FVector> UAnimationBlender::GetVertexPositions(const UPBDSoftBodyComponen
 
     TArray<FVector3f> SkinnedPositions;
     USkeletalMeshComponent::ComputeSkinnedPositions(
-        const_cast<USkeletalMeshComponent*>(Cast<USkeletalMeshComponent>(Component)),
+        Component,
         SkinnedPositions,
         RefToLocals,
         *LODRenderData,
@@ -163,6 +164,9 @@ void UAnimationBlender::UpdateBlendedPositions(UPBDSoftBodyComponent* Component)
         return;
     }
 
+    static int32 FrameCount = 0;
+    FrameCount++;
+
     for (FSoftBodyCluster& Cluster : Component->Clusters)
     {
         FVector AnimatedCentroid = FVector::ZeroVector;
@@ -174,7 +178,7 @@ void UAnimationBlender::UpdateBlendedPositions(UPBDSoftBodyComponent* Component)
         {
             AnimatedCentroid /= Cluster.VertexIndices.Num();
         }
-        if (Component->bVerboseDebugLogging)
+        if (Component->bVerboseDebugLogging && (FrameCount % 60 == 0))
         {
             UE_LOG(LogTemp, Log, TEXT("AnimationBlender: Cluster animated centroid at (%.2f, %.2f, %.2f)."),
                 AnimatedCentroid.X, AnimatedCentroid.Y, AnimatedCentroid.Z);
@@ -197,10 +201,9 @@ void UAnimationBlender::UpdateBlendedPositions(UPBDSoftBodyComponent* Component)
             Component->SimulatedPositions.Num(), Component->Clusters.Num(), Component->SoftBodyBlendWeight, *Component->GetOwner()->GetName());
         Component->bHasLoggedBlending = true;
     }
-    if (Component->bVerboseDebugLogging && !Component->bHasLoggedBlendingVerbose)
+    if (Component->bVerboseDebugLogging && (FrameCount % 60 == 0))
     {
         UE_LOG(LogTemp, Log, TEXT("AnimationBlender: First vertex position after blending: (%.2f, %.2f, %.2f)."),
             Component->SimulatedPositions[0].X, Component->SimulatedPositions[0].Y, Component->SimulatedPositions[0].Z);
-        Component->bHasLoggedBlendingVerbose = true;
     }
 }

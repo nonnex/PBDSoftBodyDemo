@@ -8,6 +8,12 @@ struct PBDSOFTBODYPLUGIN_API FSoftBodyCluster
 {
     GENERATED_BODY()
 
+    FSoftBodyCluster()
+        : CentroidPosition(FVector::ZeroVector)
+        , CentroidVelocity(FVector::ZeroVector)
+    {
+    }
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PBD Soft Body")
     FVector CentroidPosition;
 

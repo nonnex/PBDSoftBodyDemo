@@ -11,6 +11,7 @@ class PBDSOFTBODYPLUGIN_API UAnimationBlender : public UObject
     GENERATED_BODY()
 
 public:
-    TArray<FVector> GetVertexPositions(const UPBDSoftBodyComponent* Component) const;
+    // Changed from const to non-const since it modifies Component state
+    TArray<FVector> GetVertexPositions(UPBDSoftBodyComponent* Component) const;
     void UpdateBlendedPositions(UPBDSoftBodyComponent* Component);
 };
