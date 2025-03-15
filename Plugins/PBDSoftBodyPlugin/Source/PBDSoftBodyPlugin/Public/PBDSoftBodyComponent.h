@@ -2,21 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "SoftBodyCluster.h"
 #include "PBDSoftBodyComponent.generated.h"
 
 class UClusterManager;
 class UVertexBufferUpdater;
 class UAnimationBlender;
-
-USTRUCT()
-struct FSoftBodyCluster
-{
-    GENERATED_BODY()
-    TArray<int32> VertexIndices;
-    TArray<FVector> VertexOffsets;
-    FVector CentroidPosition;
-    FVector CentroidVelocity;
-};
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class PBDSOFTBODYPLUGIN_API UPBDSoftBodyComponent : public USkeletalMeshComponent

@@ -1,5 +1,6 @@
-#include "VertexBufferUpdater.h"
+#include "PBDSoftBodyPlugin/Private/Rendering/VertexBufferUpdater.h"
 #include "Rendering/SkeletalMeshRenderData.h"
+#include "SoftBodyCluster.h"
 
 void UVertexBufferUpdater::ApplyPositions(UPBDSoftBodyComponent* Component)
 {

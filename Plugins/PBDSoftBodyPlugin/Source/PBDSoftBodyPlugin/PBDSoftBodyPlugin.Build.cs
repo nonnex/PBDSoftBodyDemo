@@ -4,41 +4,26 @@ public class PBDSoftBodyPlugin : ModuleRules
 {
     public PBDSoftBodyPlugin(ReadOnlyTargetRules Target) : base(Target)
     {
-        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicIncludePaths.AddRange(
-            new string[] {
-            }
-        );
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "RenderCore", "RHI" });
 
-        PrivateIncludePaths.AddRange(
-            new string[] {
-            }
-        );
+        PrivateIncludePaths.AddRange(new string[]
+        {
+            "PBDSoftBodyPlugin/Private/Core",
+            "PBDSoftBodyPlugin/Private/Simulation",
+            "PBDSoftBodyPlugin/Private/Rendering",
+            "PBDSoftBodyPlugin/Private/Animation"
+        });
 
-        PublicDependencyModuleNames.AddRange(
-            new string[]
-            {
-                "Core",
-                "CoreUObject",
-                "Engine",
-                "RenderCore",
-                "RHI"
-            }
-        );
+        PublicIncludePaths.Add("PBDSoftBodyPlugin/Public");
 
-        PrivateDependencyModuleNames.AddRange(
-            new string[]
-            {
-                "Slate",
-                "SlateCore"
-            }
-        );
+        PrivateIncludePathModuleNames.AddRange(new string[] { });
+        PublicIncludePathModuleNames.AddRange(new string[] { });
 
-        DynamicallyLoadedModuleNames.AddRange(
-            new string[]
-            {
-            }
-        );
+        bEnableExceptions = false;
+        bUseUnity = true;
+        OptimizeCode = CodeOptimization.InShippingBuildsOnly;
     }
 }

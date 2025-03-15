@@ -1,4 +1,5 @@
-#include "ClusterManager.h"
+#include "PBDSoftBodyPlugin/Private/Simulation/ClusterManager.h"
+#include "SoftBodyCluster.h"
 
 void UClusterManager::GenerateClusters(UPBDSoftBodyComponent* Component, const TArray<FVector>& VertexPositions)
 {

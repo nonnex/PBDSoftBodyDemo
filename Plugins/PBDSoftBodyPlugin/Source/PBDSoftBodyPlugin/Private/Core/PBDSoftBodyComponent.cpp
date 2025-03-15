@@ -1,9 +1,10 @@
 #include "PBDSoftBodyComponent.h"
-#include "Simulation/ClusterManager.h"
-#include "Rendering/VertexBufferUpdater.h"
-#include "Animation/AnimationBlender.h"
+#include "PBDSoftBodyPlugin/Private/Simulation/ClusterManager.h"
+#include "PBDSoftBodyPlugin/Private/Rendering/VertexBufferUpdater.h"
+#include "PBDSoftBodyPlugin/Private/Animation/AnimationBlender.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Misc/Paths.h"
+#include "ProfilingDebugging/ScopedTimers.h"
 
 UPBDSoftBodyComponent::UPBDSoftBodyComponent()
 {

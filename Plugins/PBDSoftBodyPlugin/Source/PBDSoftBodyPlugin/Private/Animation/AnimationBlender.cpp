@@ -1,8 +1,9 @@
-#include "AnimationBlender.h"
+#include "PBDSoftBodyPlugin/Private/Animation/AnimationBlender.h"
 #include "Rendering/SkeletalMeshRenderData.h"
 #include "Rendering/SkinWeightVertexBuffer.h"
 #include "Animation/Skeleton.h"
 #include "Animation/AnimInstance.h"
+#include "SoftBodyCluster.h"
 
 TArray<FVector> UAnimationBlender::GetVertexPositions(const UPBDSoftBodyComponent* Component) const
 {
