@@ -46,15 +46,60 @@ It embeds the PBDSoftBodyPlugin (which is the focus of this development) to test
 - Leverage Unreal Engine 5.5’s rendering and physics capabilities.
 
 
-### Research Science / Sources
+## Research / Science
 - Study PBD fundamentals (e.g., Müller 2007 paper on Position-Based Dynamics).
 - Review XPBD enhancements (Macklin et al., 2016) for improved stability and performance.
 - Investigate Unreal Engine 5.5 GPU capabilities (compute shaders, Niagara, vertex shaders).
-- Analyze existing soft body implementations in Unreal (e.g., Chaos Cloth, Physics Asset constraints).
-- **Subtask 1.1: Research DQS and Implicit Methods**  
-  - Investigate Dual Quaternion Skinning for skeletal deformation and Implicit surfaces for muscle bulging (integrated from research expansion suggestion).  
-- **Subtask 1.2: Compare GPU Options**  
-  - Evaluate Niagara vs. custom shaders for PBD throughput, document pros/cons (from suggestion to consider Niagara’s performance edge).
+
+## Github Link
+https://github.com/nonnex/PBDSoftBodyDemo
+
+### Github Project Structure
+PBDSoftBodyDemo
+    │   PBDSoftBodyDemo.uproject
+    │   PBDSoftBody_Plan_7.md
+    │
+    ├───Config
+    │       DefaultEditor.ini
+    │       DefaultEditorPerProjectUserSettings.ini
+    │       DefaultEngine.ini
+    │       DefaultGame.ini
+    │       DefaultInput.ini
+    │
+    ├───Content
+    │       README.md
+    │
+    ├───Plugins
+    │   └───PBDSoftBodyPlugin
+    │       │   PBDSoftBodyPlugin.uplugin
+    │       │
+    │       ├───Resources
+    │       │       Icon128.png
+    │       │
+    │       └───Source
+    │           └───PBDSoftBodyPlugin
+    │               │   PBDSoftBodyPlugin.Build.cs
+    │               │
+    │               ├───Private
+    │               │       PBDSoftBodyComponent.cpp
+    │               │       PBDSoftBodyPlugin.cpp
+    │               │
+    │               └───Public
+    │                       PBDSoftBodyComponent.h
+    │                       PBDSoftBodyPlugin.h
+    │
+    └───Source
+        │   PBDSoftBodyDemo.Target.cs
+        │   PBDSoftBodyDemoEditor.Target.cs
+        │
+        └───PBDSoftBodyDemo
+                PBDSoftBodyDemo.Build.cs
+                PBDSoftBodyDemo.cpp
+                PBDSoftBodyDemo.h
+                PBDSoftBodyDemoCharacter.cpp
+                PBDSoftBodyDemoCharacter.h
+                PBDSoftBodyDemoGameMode.cpp
+                PBDSoftBodyDemoGameMode.h
 
 ## Tasks
 
