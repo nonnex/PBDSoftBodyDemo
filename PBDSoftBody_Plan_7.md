@@ -55,6 +55,7 @@ It embeds the PBDSoftBodyPlugin (which is the focus of this development) to test
 https://github.com/nonnex/PBDSoftBodyDemo
 
 ### Github Project Structure
+```
 PBDSoftBodyDemo
     │   PBDSoftBodyDemo.uproject
     │   PBDSoftBody_Plan_7.md
@@ -100,6 +101,7 @@ PBDSoftBodyDemo
                 PBDSoftBodyDemoCharacter.h
                 PBDSoftBodyDemoGameMode.cpp
                 PBDSoftBodyDemoGameMode.h
+```
 
 ## Tasks
 
