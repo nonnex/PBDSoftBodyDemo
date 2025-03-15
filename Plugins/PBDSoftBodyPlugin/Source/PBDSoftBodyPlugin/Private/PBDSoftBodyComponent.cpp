@@ -5,6 +5,7 @@
 #include "Animation/AnimInstance.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Misc/Paths.h"
+#include "ProfilingDebugging/ScopedTimers.h" // Added for FScopedDurationTimer
 
 UPBDSoftBodyComponent::UPBDSoftBodyComponent()
 {
@@ -127,9 +128,14 @@ bool UPBDSoftBodyComponent::InitializeSimulationData()
     }
     int32 VertexCount = LODRenderData->GetNumVertices();
 
+    // Task 2.5.1: Dynamically calculate NumClusters based on vertex count
+    const int32 MinClusters = 1;
+    const int32 MaxClusters = 100;
+    NumClusters = FMath::Clamp(VertexCount / 1000, MinClusters, MaxClusters);
     if (bEnableDebugLogging)
     {
-        UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyComponent: Initializing simulation data for %s with %d vertices."), *Mesh->GetName(), VertexCount);
+        UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyComponent: Initializing simulation data for %s with %d vertices. Calculated NumClusters: %d."),
+            *Mesh->GetName(), VertexCount, NumClusters);
     }
 
     Velocities.Reset();
@@ -156,13 +162,39 @@ bool UPBDSoftBodyComponent::InitializeSimulationData()
         SimulatedPositions[i] = InitialPositions[i];
     }
 
-    GenerateClusters(InitialPositions);
-
+    // Task 2.5.3: Profile clustering performance
+    double ClusteringTimeMs = 0.0;
+    {
+        FScopedDurationTimer ClusteringTimer(ClusteringTimeMs);
+        GenerateClusters(InitialPositions);
+    }
     if (bEnableDebugLogging)
     {
-        UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyComponent: Successfully initialized %d vertices and %d clusters for %s."),
-            VertexCount, Clusters.Num(), *Mesh->GetName());
+        UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyComponent: Clustering completed for %s in %.3f ms with %d clusters."),
+            *Mesh->GetName(), ClusteringTimeMs, Clusters.Num());
+        if (ClusteringTimeMs > 1.0 && VertexCount >= 450000)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("PBDSoftBodyComponent: Clustering time %.3f ms exceeds 1 ms target for %d vertices."),
+                ClusteringTimeMs, VertexCount);
+        }
     }
+
+    if (Clusters.Num() == 0)
+    {
+        if (bEnableDebugLogging)
+        {
+            UE_LOG(LogTemp, Error, TEXT("PBDSoftBodyComponent: Cluster generation failed for %s."), *Mesh->GetName());
+        }
+        return false;
+    }
+
+    // Task 2.5.2: Log scalability test info
+    if (bEnableDebugLogging && bVerboseDebugLogging)
+    {
+        UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyComponent: Scalability test - VertexCount: %d, NumClusters: %d, Clusters Generated: %d."),
+            VertexCount, NumClusters, Clusters.Num());
+    }
+
     return true;
 }
 
@@ -335,7 +367,17 @@ void UPBDSoftBodyComponent::GenerateClusters(const TArray<FVector>& VertexPositi
         {
             Centroid += VertexPositions[VertexIdx];
         }
-        Centroid /= Cluster.VertexIndices.Num();
+        if (Cluster.VertexIndices.Num() > 0) // Safeguard against empty clusters
+        {
+            Centroid /= Cluster.VertexIndices.Num();
+        }
+        else
+        {
+            if (bEnableDebugLogging)
+            {
+                UE_LOG(LogTemp, Warning, TEXT("PBDSoftBodyComponent: Cluster %d has no vertices assigned."), ClusterIdx);
+            }
+        }
         Cluster.CentroidPosition = Centroid;
         Cluster.CentroidVelocity = FVector::ZeroVector;
 
