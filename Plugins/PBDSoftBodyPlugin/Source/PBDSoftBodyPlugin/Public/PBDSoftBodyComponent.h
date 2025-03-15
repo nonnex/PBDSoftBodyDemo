@@ -13,16 +13,18 @@ struct FSoftBodyCluster {
     FVector CentroidVelocity = FVector::ZeroVector;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Soft Body Simulation")
-    TArray<int32> VertexIndices; // Indices of vertices in this cluster
+    TArray<int32> VertexIndices;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Soft Body Simulation")
-    TArray<FVector> VertexOffsets; // Relative offsets from centroid
+    TArray<FVector> VertexOffsets;
 };
 
 UCLASS(ClassGroup = (Simulation), meta = (BlueprintSpawnableComponent))
 class PBDSOFTBODYPLUGIN_API UPBDSoftBodyComponent : public USkeletalMeshComponent {
     GENERATED_BODY()
 public:
+    UPBDSoftBodyComponent();
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Soft Body", meta = (ClampMin = "0.0", ClampMax = "1.0"))
     float SoftBodyBlendWeight = 0.5f;
 
@@ -33,10 +35,10 @@ public:
     bool bEnableDebugLogging = true;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Soft Body Debugging")
-    bool bVerboseDebugLogging = false; // Additional detailed logging
+    bool bVerboseDebugLogging = false;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Soft Body Clustering", meta = (ClampMin = "1"))
-    int32 NumClusters = 10; // Number of clusters to create
+    int32 NumClusters = 10;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Soft Body Simulation")
     TArray<FVector> Velocities;
@@ -47,6 +49,11 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Soft Body Simulation")
     TArray<FSoftBodyCluster> Clusters;
 
+    mutable bool bHasActiveAnimation = false;
+    mutable bool bHasLoggedVertexCount = false;
+    mutable bool bHasLoggedBlending = false;
+    mutable bool bHasLoggedBlendingVerbose = false;
+
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -54,4 +61,6 @@ public:
     TArray<FVector> GetVertexPositions() const;
     void UpdateBlendedPositions();
     void GenerateClusters(const TArray<FVector>& VertexPositions);
+
+    void InitializeConfig();
 };
