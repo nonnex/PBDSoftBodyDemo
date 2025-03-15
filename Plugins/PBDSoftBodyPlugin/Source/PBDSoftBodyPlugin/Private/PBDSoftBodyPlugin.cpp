@@ -2,12 +2,14 @@
 
 #define LOCTEXT_NAMESPACE "FPBDSoftBodyPluginModule"
 
-void FPBDSoftBodyPluginModule::StartupModule() {
-    // No startup logic needed yet
+void FPBDSoftBodyPluginModule::StartupModule()
+{
+    UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyPlugin: Module started."));
 }
 
-void FPBDSoftBodyPluginModule::ShutdownModule() {
-    // No shutdown logic needed yet
+void FPBDSoftBodyPluginModule::ShutdownModule()
+{
+    UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyPlugin: Module shut down."));
 }
 
 #undef LOCTEXT_NAMESPACE
