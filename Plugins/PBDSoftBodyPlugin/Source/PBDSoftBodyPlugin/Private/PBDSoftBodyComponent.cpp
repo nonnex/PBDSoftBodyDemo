@@ -3,55 +3,33 @@
 #include "Rendering/SkinWeightVertexBuffer.h"
 #include "Animation/Skeleton.h"
 #include "Animation/AnimInstance.h"
-#include "Misc/ConfigCacheIni.h"  // For GConfig, standard UE 5.5.4 API for config file access
-#include "Misc/Paths.h"           // For FPaths, standard UE 5.5.4 API for path utilities
+#include "Misc/ConfigCacheIni.h"
+#include "Misc/Paths.h"
 
-/**
- * Constructor for UPBDSoftBodyComponent.
- * Initializes default values for soft body simulation parameters.
- * These defaults ensure the component is functional even if the config file is missing.
- */
 UPBDSoftBodyComponent::UPBDSoftBodyComponent()
 {
-    // Default blend weight for combining animated and simulated positions (0.0 = fully animated, 1.0 = fully simulated)
     SoftBodyBlendWeight = 0.5f;
-
-    // Default number of clusters for simulation, ensuring at least one cluster
     NumClusters = 10;
-
-    // Enable basic debug logging by default for troubleshooting
     bEnableDebugLogging = true;
-
-    // Disable verbose logging by default to avoid log spam
     bVerboseDebugLogging = false;
-
-    // Initialize animation state flag
     bHasActiveAnimation = false;
+    bHasLoggedVertexCount = false;
+    bHasLoggedBlending = false;
+    bHasLoggedBlendingVerbose = false;
 }
 
-/**
- * Loads simulation settings from PBDSoftBodyConfig.ini located in the plugin's Config directory.
- * Uses GConfig with a normalized path for robust INI file parsing, falling back to defaults if the file or settings are missing.
- * Validates loaded values to ensure simulation stability.
- */
 void UPBDSoftBodyComponent::InitializeConfig()
 {
-    // Construct the base path to the config file using plugin directory
     FString ConfigPath = FPaths::Combine(FPaths::ProjectPluginsDir(), TEXT("PBDSoftBodyPlugin/Config/PBDSoftBodyConfig.ini"));
-
-    // Normalize the config path to comply with Unreal Engine best practices
     FString NormalizedConfigPath = FConfigCacheIni::NormalizeConfigIniPath(ConfigPath);
 
-    // Log the normalized path for debugging
     if (bEnableDebugLogging && bVerboseDebugLogging)
     {
         UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyComponent: Using normalized config path: %s"), *NormalizedConfigPath);
     }
 
-    // Check if GConfig is available (safeguard against null pointer)
     if (GConfig)
     {
-        // Load SoftBodyBlendWeight from the [PBDSoftBody] section of the INI file
         if (!GConfig->GetFloat(TEXT("PBDSoftBody"), TEXT("SoftBodyBlendWeight"), SoftBodyBlendWeight, NormalizedConfigPath))
         {
             if (bEnableDebugLogging)
@@ -60,7 +38,6 @@ void UPBDSoftBodyComponent::InitializeConfig()
             }
         }
 
-        // Load NumClusters from the [PBDSoftBody] section of the INI file
         if (!GConfig->GetInt(TEXT("PBDSoftBody"), TEXT("NumClusters"), NumClusters, NormalizedConfigPath))
         {
             if (bEnableDebugLogging)
@@ -69,15 +46,11 @@ void UPBDSoftBodyComponent::InitializeConfig()
             }
         }
 
-        // Validate and clamp SoftBodyBlendWeight to [0, 1] to prevent invalid blending
         SoftBodyBlendWeight = FMath::Clamp(SoftBodyBlendWeight, 0.0f, 1.0f);
-
-        // Ensure NumClusters is at least 1 to avoid division by zero or invalid clustering
         NumClusters = FMath::Max(NumClusters, 1);
     }
     else
     {
-        // Safeguard: Log an error if GConfig is unavailable, but proceed with defaults
         if (bEnableDebugLogging)
         {
             UE_LOG(LogTemp, Error, TEXT("PBDSoftBodyComponent: GConfig unavailable. Using default values for SoftBodyBlendWeight (%f) and NumClusters (%d)"), SoftBodyBlendWeight, NumClusters);
@@ -85,18 +58,11 @@ void UPBDSoftBodyComponent::InitializeConfig()
     }
 }
 
-/**
- * Called when the game starts or when the component is spawned.
- * Loads config settings and initializes simulation data.
- */
 void UPBDSoftBodyComponent::BeginPlay()
 {
     Super::BeginPlay();
-
-    // Load configuration settings before simulation setup
     InitializeConfig();
 
-    // Log loaded values for debugging and verification once at startup
     if (bEnableDebugLogging)
     {
         UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyComponent: BeginPlay called for %s."), *GetOwner()->GetName());
@@ -104,7 +70,6 @@ void UPBDSoftBodyComponent::BeginPlay()
         UE_LOG(LogTemp, Log, TEXT("Loaded NumClusters: %d"), NumClusters);
     }
 
-    // Attempt to initialize simulation data
     if (!InitializeSimulationData())
     {
         if (bEnableDebugLogging)
@@ -114,18 +79,10 @@ void UPBDSoftBodyComponent::BeginPlay()
     }
 }
 
-/**
- * Called every frame to update the component.
- * Retries initialization if necessary and updates blended positions.
- * @param DeltaTime - Time since the last frame
- * @param TickType - Type of tick (e.g., gameplay, viewport)
- * @param ThisTickFunction - Tick function data
- */
 void UPBDSoftBodyComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    // Retry initialization if simulation data is not yet set up
     if (Velocities.Num() == 0 || SimulatedPositions.Num() == 0)
     {
         if (bEnableDebugLogging && GetOwner())
@@ -142,14 +99,9 @@ void UPBDSoftBodyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
         }
     }
 
-    // Update simulation with blended positions
     UpdateBlendedPositions();
 }
 
-/**
- * Initializes simulation data including vertex velocities, positions, and clusters.
- * @return True if initialization succeeds, false otherwise
- */
 bool UPBDSoftBodyComponent::InitializeSimulationData()
 {
     USkeletalMesh* Mesh = GetSkeletalMeshAsset();
@@ -180,7 +132,6 @@ bool UPBDSoftBodyComponent::InitializeSimulationData()
         UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyComponent: Initializing simulation data for %s with %d vertices."), *Mesh->GetName(), VertexCount);
     }
 
-    // Reset simulation arrays to ensure clean state
     Velocities.Reset();
     SimulatedPositions.Reset();
     Clusters.Reset();
@@ -196,7 +147,6 @@ bool UPBDSoftBodyComponent::InitializeSimulationData()
         return false;
     }
 
-    // Initialize arrays with proper sizes
     Velocities.SetNum(VertexCount, EAllowShrinking::No);
     SimulatedPositions.SetNum(VertexCount, EAllowShrinking::No);
 
@@ -216,11 +166,6 @@ bool UPBDSoftBodyComponent::InitializeSimulationData()
     return true;
 }
 
-/**
- * Retrieves the current vertex positions of the skeletal mesh, either from animation or reference pose.
- * Caches animation state to reduce redundant logging.
- * @return Array of vertex positions in component space
- */
 TArray<FVector> UPBDSoftBodyComponent::GetVertexPositions() const
 {
     TArray<FVector> Positions;
@@ -271,7 +216,6 @@ TArray<FVector> UPBDSoftBodyComponent::GetVertexPositions() const
     bool bCurrentHasAnimation = (GetAnimInstance() != nullptr && BoneTransforms.Num() > 0);
     if (bCurrentHasAnimation != bHasActiveAnimation)
     {
-        // Log only when animation state changes
         bHasActiveAnimation = bCurrentHasAnimation;
         if (bEnableDebugLogging)
         {
@@ -300,7 +244,7 @@ TArray<FVector> UPBDSoftBodyComponent::GetVertexPositions() const
             if (bEnableDebugLogging && !bHasLoggedVertexCount)
             {
                 UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyComponent: Retrieved %d reference pose vertex positions for %s."), Positions.Num(), *Mesh->GetName());
-                bHasLoggedVertexCount = true; // Log only once
+                bHasLoggedVertexCount = true;
             }
         }
         else
@@ -340,7 +284,7 @@ TArray<FVector> UPBDSoftBodyComponent::GetVertexPositions() const
         if (bEnableDebugLogging && !bHasLoggedVertexCount)
         {
             UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyComponent: Retrieved %d skinned vertex positions for %s."), Positions.Num(), *Mesh->GetName());
-            bHasLoggedVertexCount = true; // Log only once
+            bHasLoggedVertexCount = true;
         }
     }
     else
@@ -353,11 +297,6 @@ TArray<FVector> UPBDSoftBodyComponent::GetVertexPositions() const
     return Positions;
 }
 
-/**
- * Generates clusters for the soft body simulation based on vertex positions.
- * Divides vertices into NumClusters groups and computes centroids and offsets.
- * @param VertexPositions - Array of initial vertex positions
- */
 void UPBDSoftBodyComponent::GenerateClusters(const TArray<FVector>& VertexPositions)
 {
     if (VertexPositions.Num() == 0 || NumClusters <= 0)
@@ -418,10 +357,6 @@ void UPBDSoftBodyComponent::GenerateClusters(const TArray<FVector>& VertexPositi
     }
 }
 
-/**
- * Updates the simulated positions by blending animated and physics-based positions.
- * Uses SoftBodyBlendWeight to interpolate between animation and simulation.
- */
 void UPBDSoftBodyComponent::UpdateBlendedPositions()
 {
     if (Velocities.Num() == 0 || SimulatedPositions.Num() == 0 || Clusters.Num() == 0)
@@ -469,7 +404,78 @@ void UPBDSoftBodyComponent::UpdateBlendedPositions()
         }
     }
 
-    // Log blending info only once or on significant change (e.g., initialization)
+    USkeletalMesh* Mesh = GetSkeletalMeshAsset();
+    if (!Mesh || !Mesh->GetResourceForRendering())
+    {
+        if (bEnableDebugLogging)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("PBDSoftBodyComponent: Failed to get skeletal mesh or rendering resource for %s."), *GetOwner()->GetName());
+        }
+        return;
+    }
+
+    FSkeletalMeshLODRenderData* LODRenderData = Mesh->GetResourceForRendering()->LODRenderData.IsValidIndex(0)
+        ? &Mesh->GetResourceForRendering()->LODRenderData[0]
+        : nullptr;
+    if (!LODRenderData)
+    {
+        if (bEnableDebugLogging)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("PBDSoftBodyComponent: No LODRenderData for applying positions in %s."), *Mesh->GetName());
+        }
+        return;
+    }
+
+    FPositionVertexBuffer& PositionBuffer = LODRenderData->StaticVertexBuffers.PositionVertexBuffer;
+    if (PositionBuffer.GetNumVertices() != SimulatedPositions.Num())
+    {
+        if (bEnableDebugLogging)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("PBDSoftBodyComponent: Vertex count mismatch when applying positions. Buffer: %d, Simulated: %d."),
+                PositionBuffer.GetNumVertices(), SimulatedPositions.Num());
+        }
+        return;
+    }
+
+    ENQUEUE_RENDER_COMMAND(UpdateSoftBodyPositions)(
+        [this, &PositionBuffer](FRHICommandListImmediate& RHICmdList)
+        {
+            FBufferRHIRef& VertexBuffer = PositionBuffer.VertexBufferRHI;
+            if (!VertexBuffer.IsValid())
+            {
+                if (bEnableDebugLogging)
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("PBDSoftBodyComponent: Vertex buffer not valid for %s."), *GetOwner()->GetName());
+                }
+                return;
+            }
+
+            void* VertexData = RHICmdList.LockBuffer(VertexBuffer.GetReference(), 0, PositionBuffer.GetNumVertices() * sizeof(FVector3f), RLM_WriteOnly);
+            if (VertexData)
+            {
+                FVector3f* Positions = static_cast<FVector3f*>(VertexData);
+                for (int32 i = 0; i < SimulatedPositions.Num(); i++)
+                {
+                    Positions[i] = FVector3f(SimulatedPositions[i].X, SimulatedPositions[i].Y, SimulatedPositions[i].Z);
+                }
+                RHICmdList.UnlockBuffer(VertexBuffer.GetReference());
+
+                if (bEnableDebugLogging && !bHasLoggedBlending && GetSkeletalMeshAsset()->GetName().Contains(TEXT("SKM_Quinn")))
+                {
+                    UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyComponent: Successfully applied %d simulated positions to SKM_Quinn."), SimulatedPositions.Num());
+                }
+            }
+            else
+            {
+                if (bEnableDebugLogging)
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("PBDSoftBodyComponent: Failed to lock vertex buffer for %s."), *GetOwner()->GetName());
+                }
+            }
+        });
+
+    MarkRenderStateDirty();
+
     if (bEnableDebugLogging && !bHasLoggedBlending)
     {
         UE_LOG(LogTemp, Log, TEXT("PBDSoftBodyComponent: Blended %d vertices across %d clusters with weight %.2f for %s."),
@@ -482,6 +488,4 @@ void UPBDSoftBodyComponent::UpdateBlendedPositions()
             SimulatedPositions[0].X, SimulatedPositions[0].Y, SimulatedPositions[0].Z);
         bHasLoggedBlendingVerbose = true;
     }
-
-    // TODO: Apply blended positions to the mesh (deferred to Task 4)
 }
